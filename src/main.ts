@@ -9,7 +9,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  const port = configService.get('PORT');
+  const port = configService.get('APP_PORT');
   const env = process.env.NODE_ENV || 'dev';
 
   const logger = new Logger();
