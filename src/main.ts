@@ -1,11 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { Logger } from '@nestjs/common';
+import { Logger, NestApplicationOptions } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+// import * as fs from 'fs';
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const appOptions: NestApplicationOptions = {};
+
+  // appOptions.httpsOptions = {
+  //   key: fs.readFileSync('./key.pem'),
+  //   cert: fs.readFileSync('./cert.pem'),
+  // };
+
+  const app = await NestFactory.create(AppModule, appOptions);
 
   const configService = app.get(ConfigService);
 
