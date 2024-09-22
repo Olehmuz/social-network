@@ -17,7 +17,7 @@ describe('AppController', () => {
   describe('root', () => {
     it('should return "Hello World! Change to trigger CI/CD"', () => {
       expect(appController.getHello()).toBe(
-        'Hello World! Change to trigger CI/CD',
+        'Hello World! Change to trigger CI/CD. Change!',
       );
     });
   });
