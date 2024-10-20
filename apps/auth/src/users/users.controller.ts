@@ -1,9 +1,4 @@
 import {
-  InfinityPaginationResponse,
-  InfinityPaginationResponseDto,
-} from '@app/utils/dto/infinity-pagination-response.dto';
-import { infinityPagination } from '@app/utils/infinity-pagination';
-import {
   Controller,
   Get,
   Post,
@@ -20,6 +15,12 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+
+import {
+  InfinityPaginationResponse,
+  InfinityPaginationResponseDto,
+} from '@app/utils/dto/infinity-pagination-response.dto';
+import { infinityPagination } from '@app/utils/infinity-pagination';
 
 import { User } from './domain/user';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -78,7 +79,7 @@ export class UsersController {
     type: User,
   })
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+    return this.usersService.findOneByUserId(id);
   }
 
   @Patch(':id')

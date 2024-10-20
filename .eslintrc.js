@@ -9,9 +9,9 @@ module.exports = {
   extends: [
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
-    "plugin:import/errors",
-    "plugin:import/warnings",
-    "plugin:import/typescript"
+    'plugin:import/errors',
+    'plugin:import/warnings',
+    'plugin:import/typescript',
   ],
   root: true,
   env: {
@@ -25,37 +25,51 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
-    "import/no-absolute-path": "error",
-    "import/no-unresolved": [
-      "error",
+    'import/no-absolute-path': 'error',
+    'import/no-unresolved': [
+      'error',
       {
-        "ignore": ["^\\.\\./", "^\\./", "^@app"]
-      }
+        ignore: ['^\\.\\./', '^\\./', '^@app'],
+      },
     ],
-    "no-restricted-imports": [
-      "error",
+    'no-restricted-imports': [
+      'error',
       {
-        "patterns": ["src/*"]
-      }
+        patterns: ['src/*'],
+      },
     ],
-    "import/order": ["error", {
-      "groups": [
-        ["builtin", "external"],
-        ["internal"],
-        ["parent", "sibling", "index"]
-      ],
-      "pathGroups": [
-        {
-          "pattern": "src/**",
-          "group": "internal"
-        }
-      ],
-      "pathGroupsExcludedImportTypes": ["builtin"],
-      "newlines-between": "always",
-      "alphabetize": {
-        "order": "asc",
-        "caseInsensitive": true
-      }
-    }]
+    'import/order': [
+      'error',
+      {
+        groups: [
+          ['builtin', 'external'],
+          ['internal'],
+          ['index', 'sibling', 'parent'],
+        ],
+        pathGroups: [
+          {
+            pattern: '@app/common/**',
+            group: 'internal',
+            position: 'after',
+          },
+          {
+            pattern: '@app/utils/**',
+            group: 'internal',
+            position: 'after',
+          },
+          {
+            pattern: '@app/**',
+            group: 'internal',
+            position: 'after',
+          },
+        ],
+        pathGroupsExcludedImportTypes: ['builtin'],
+        'newlines-between': 'always',
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true,
+        },
+      },
+    ],
   },
 };

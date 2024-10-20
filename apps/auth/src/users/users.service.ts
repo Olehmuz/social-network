@@ -1,5 +1,6 @@
-import { IPaginationOptions } from '@app/utils/types/pagination-options';
 import { Injectable } from '@nestjs/common';
+
+import { IPaginationOptions } from '@app/utils/types/pagination-options';
 
 import { User } from './domain/user';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -27,7 +28,7 @@ export class UsersService {
     });
   }
 
-  findOne(id: User['id']) {
+  findOneByUserId(id: User['id']) {
     return this.userRepository.findById(id);
   }
 

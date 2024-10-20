@@ -1,7 +1,14 @@
 import { Logger, NestApplicationOptions } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import {
+  MicroserviceOptions,
+  RmqOptions,
+  Transport,
+} from '@nestjs/microservices';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+import { RmqService } from '@app/common/modules/rmq/rmq.service';
 
 import { AuthModule } from './auth.module';
 
@@ -34,6 +41,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(port || 3000);
+  const rmqService = app.get<RmqService>(RmqService);
+
+  app.connectMicroservice<RmqOptions>(rmqService.getOptions('AUTH', true));
+
+  await app.startAllMicroservices();
+
+  await app.listen(port);
 }
 bootstrap();

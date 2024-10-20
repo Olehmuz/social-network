@@ -2,9 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { RoomEntity, UserEntity } from '@app/common/entities';
+import { RmqModule } from '@app/common/modules/rmq/rmq.module';
+
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { UserEntity } from './users/infrastructure/persistence/relational/entities/user.entity';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -12,7 +14,7 @@ import { UsersModule } from './users/users.module';
     ConfigModule.forRoot({
       isGlobal: true,
       cache: false,
-      envFilePath: `./apps/auth/.env`,
+      envFilePath: [`./apps/auth/.env`, `./.env`],
     }),
     UsersModule,
     TypeOrmModule.forRootAsync({
@@ -25,10 +27,11 @@ import { UsersModule } from './users/users.module';
         username: configService.get('DATABASE_USERNAME'),
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_NAME'),
-        entities: [UserEntity],
+        entities: [UserEntity, RoomEntity],
         synchronize: true,
       }),
     }),
+    RmqModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],

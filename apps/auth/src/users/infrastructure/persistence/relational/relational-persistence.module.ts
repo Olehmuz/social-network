@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { UserEntity } from '@app/common/entities';
+
 import { UserRepository } from '../user.repository';
-import { UserEntity } from './entities/user.entity';
 import { UserRelationalRepository } from './repositories/user.repository';
 
 @Module({

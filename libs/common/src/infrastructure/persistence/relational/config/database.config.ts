@@ -1,4 +1,3 @@
-import validateConfig from '@app/utils/validate-config';
 import { registerAs } from '@nestjs/config';
 import {
   IsOptional,
@@ -9,6 +8,8 @@ import {
   ValidateIf,
   IsBoolean,
 } from 'class-validator';
+
+import validateConfig from '@app/utils/validate-config';
 
 import { DatabaseConfig } from './database-config.type';
 

@@ -1,13 +1,15 @@
-import { NullableType } from '@app/utils/types/nullable.type';
-import { IPaginationOptions } from '@app/utils/types/pagination-options';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { User } from '../../../../domain/user';
+import { User } from '@app/common/domain';
+import { UserEntity } from '@app/common/entities';
+
+import { NullableType } from '@app/utils/types/nullable.type';
+import { IPaginationOptions } from '@app/utils/types/pagination-options';
+
 import { UserRepository } from '../../user.repository';
-import { UserEntity } from '../entities/user.entity';
-import { UserMapper } from '../mappers/user.mapper';
+import { UserMapper } from '../mappers/room.mapper';
 
 @Injectable()
 export class UserRelationalRepository implements UserRepository {

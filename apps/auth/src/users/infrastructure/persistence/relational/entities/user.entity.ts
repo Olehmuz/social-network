@@ -1,4 +1,3 @@
-import { EntityRelationalHelper } from '@app/utils/relational-entity-helper';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   CreateDateColumn,
@@ -6,12 +5,25 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   Column,
+  ManyToMany,
 } from 'typeorm';
+
+import { RoomEntity } from '@app/common/entities';
+
+import { EntityRelationalHelper } from '@app/utils/relational-entity-helper';
 
 @Entity({
   name: 'user',
 })
 export class UserEntity extends EntityRelationalHelper {
+  @ApiProperty()
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @ApiProperty()
+  @ManyToMany(() => RoomEntity, (room) => room.users)
+  rooms: RoomEntity[];
+
   @ApiProperty()
   @Column()
   nickname: string;
@@ -27,10 +39,6 @@ export class UserEntity extends EntityRelationalHelper {
   @ApiProperty()
   @Column()
   email: string;
-
-  @ApiProperty()
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
 
   @ApiProperty()
   @CreateDateColumn()
