@@ -17,6 +17,8 @@ export abstract class UserRepository {
 
   abstract findById(id: User['id']): Promise<NullableType<User>>;
 
+  abstract findByEmail(email: User['email']): Promise<NullableType<User>>;
+
   abstract update(
     id: User['id'],
     payload: DeepPartial<User>,

@@ -11,7 +11,7 @@ export class User {
   nickname: string;
 
   @ApiProperty()
-  photo: string;
+  photo?: string;
 
   @ApiProperty({
     type: String,

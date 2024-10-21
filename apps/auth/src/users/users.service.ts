@@ -32,6 +32,10 @@ export class UsersService {
     return this.userRepository.findById(id);
   }
 
+  findUserByEmail(email: User['email']) {
+    return this.userRepository.findByEmail(email);
+  }
+
   update(id: User['id'], updateUserDto: UpdateUserDto) {
     return this.userRepository.update(id, updateUserDto);
   }

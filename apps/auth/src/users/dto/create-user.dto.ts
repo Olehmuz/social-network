@@ -16,5 +16,5 @@ export class CreateUserDto {
 
   @ApiProperty()
   @IsString()
-  photo: string;
+  photo?: string;
 }

@@ -33,8 +33,8 @@ export class UserEntity extends EntityRelationalHelper {
   password: string;
 
   @ApiProperty()
-  @Column()
-  photo: string;
+  @Column({ nullable: true })
+  photo?: string;
 
   @ApiProperty()
   @Column()

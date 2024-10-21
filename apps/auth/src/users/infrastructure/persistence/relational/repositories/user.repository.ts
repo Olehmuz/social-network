@@ -47,6 +47,14 @@ export class UserRelationalRepository implements UserRepository {
     return entity ? UserMapper.toDomain(entity) : null;
   }
 
+  async findByEmail(email: User['email']): Promise<NullableType<User>> {
+    const entity = await this.userRepository.findOne({
+      where: { email },
+    });
+
+    return entity ? UserMapper.toDomain(entity) : null;
+  }
+
   async update(id: User['id'], payload: Partial<User>): Promise<User> {
     const entity = await this.userRepository.findOne({
       where: { id },
