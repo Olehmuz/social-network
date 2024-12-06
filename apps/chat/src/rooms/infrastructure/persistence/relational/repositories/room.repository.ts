@@ -14,14 +14,16 @@ import { RoomMapper } from '../mappers/room.mapper';
 export class RoomRelationalRepository implements RoomRepository {
   constructor(
     @InjectRepository(RoomEntity)
-    private readonly userRepository: Repository<RoomEntity>,
+    private readonly roomsRepository: Repository<RoomEntity>,
   ) {}
 
   async create(data: Room): Promise<Room> {
     const persistenceModel = RoomMapper.toPersistence(data);
-    const newEntity = await this.userRepository.save(
-      this.userRepository.create(persistenceModel),
+
+    const newEntity = await this.roomsRepository.save(
+      this.roomsRepository.create(persistenceModel),
     );
+
     return RoomMapper.toDomain(newEntity);
   }
 
@@ -30,7 +32,7 @@ export class RoomRelationalRepository implements RoomRepository {
   }: {
     paginationOptions: IPaginationOptions;
   }): Promise<Room[]> {
-    const entities = await this.userRepository.find({
+    const entities = await this.roomsRepository.find({
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
       take: paginationOptions.limit,
     });
@@ -39,7 +41,7 @@ export class RoomRelationalRepository implements RoomRepository {
   }
 
   async findById(id: Room['id']): Promise<NullableType<Room>> {
-    const entity = await this.userRepository.findOne({
+    const entity = await this.roomsRepository.findOne({
       where: { id },
     });
 
@@ -47,7 +49,7 @@ export class RoomRelationalRepository implements RoomRepository {
   }
 
   async update(id: Room['id'], payload: Partial<Room>): Promise<Room> {
-    const entity = await this.userRepository.findOne({
+    const entity = await this.roomsRepository.findOne({
       where: { id },
     });
 
@@ -55,8 +57,8 @@ export class RoomRelationalRepository implements RoomRepository {
       throw new Error('Record not found');
     }
 
-    const updatedEntity = await this.userRepository.save(
-      this.userRepository.create(
+    const updatedEntity = await this.roomsRepository.save(
+      this.roomsRepository.create(
         RoomMapper.toPersistence({
           ...RoomMapper.toDomain(entity),
           ...payload,
@@ -68,6 +70,15 @@ export class RoomRelationalRepository implements RoomRepository {
   }
 
   async remove(id: Room['id']): Promise<void> {
-    await this.userRepository.delete(id);
+    await this.roomsRepository.delete(id);
+  }
+
+  async findAllByUserId(userId: string): Promise<Room[]> {
+    const entities = await this.roomsRepository.find({
+      where: { users: { id: userId } },
+      relations: ['users'],
+    });
+
+    return entities.map((entity) => RoomMapper.toDomain(entity));
   }
 }

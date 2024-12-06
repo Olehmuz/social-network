@@ -21,8 +21,8 @@ export class RoomEntity extends EntityRelationalHelper {
   id: string;
 
   @ApiProperty()
-  @Column()
-  name: string;
+  @Column({ nullable: true })
+  name?: string;
 
   @ApiProperty()
   @ManyToMany(() => UserEntity, (user) => user.rooms)

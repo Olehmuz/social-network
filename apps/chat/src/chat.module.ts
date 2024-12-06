@@ -2,6 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { RmqModule } from '@app/common/modules/rmq/rmq.module';
+
+import { RoomEntity, UserEntity } from '@app/common';
+
 import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
 import { RoomsModule } from './rooms/rooms.module';
@@ -11,7 +15,7 @@ import { RoomsModule } from './rooms/rooms.module';
     ConfigModule.forRoot({
       isGlobal: true,
       cache: false,
-      envFilePath: `./apps/chat/.env`,
+      envFilePath: [`./apps/chat/.env`, `./.env`],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -23,11 +27,12 @@ import { RoomsModule } from './rooms/rooms.module';
         username: configService.get('DATABASE_USERNAME'),
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_NAME'),
-        entities: [],
+        entities: [RoomEntity, UserEntity],
         synchronize: true,
       }),
     }),
     RoomsModule,
+    RmqModule,
   ],
   controllers: [ChatController],
   providers: [ChatService],

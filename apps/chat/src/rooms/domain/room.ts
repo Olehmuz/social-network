@@ -9,7 +9,7 @@ export class Room {
   id: string;
 
   @ApiProperty()
-  name: string;
+  name?: string;
 
   @ApiProperty()
   users: User[];

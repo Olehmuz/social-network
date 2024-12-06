@@ -2,11 +2,17 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 
-import { AUTH_SERVICE } from '@app/common/constatnts/services.constants';
+import { AuthModule } from '@app/common/auth/auth.module';
+import { CacheModule } from '@app/common/cache/cache.module';
+import {
+  AUTH_SERVICE,
+  CHAT_SERVICE,
+} from '@app/common/constatnts/services.constants';
 import { RmqModule } from '@app/common/modules/rmq/rmq.module';
 
 import { GatewayController } from './gateway.controller';
 import { GatewayService } from './gateway.service';
+import { ChatGateway } from './ws.gateway';
 
 @Module({
   imports: [
@@ -21,9 +27,14 @@ import { GatewayService } from './gateway.service';
     RmqModule.register({
       name: AUTH_SERVICE,
     }),
+    RmqModule.register({
+      name: CHAT_SERVICE,
+    }),
+    AuthModule,
+    CacheModule,
   ],
 
   controllers: [GatewayController],
-  providers: [GatewayService],
+  providers: [GatewayService, ChatGateway],
 })
 export class GatewayModule {}

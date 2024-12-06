@@ -8,7 +8,10 @@ import {
 } from '@nestjs/microservices';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+import { AUTH_SERVICE } from '@app/common/constatnts/services.constants';
 import { RmqService } from '@app/common/modules/rmq/rmq.service';
+
+import { RpcErrorInterceptor } from '@app/utils/interceptors/rpc-error.interceptor';
 
 import { AuthModule } from './auth.module';
 
@@ -43,7 +46,11 @@ async function bootstrap() {
 
   const rmqService = app.get<RmqService>(RmqService);
 
-  app.connectMicroservice<RmqOptions>(rmqService.getOptions('AUTH', true));
+  app.connectMicroservice<RmqOptions>(
+    rmqService.getOptions(AUTH_SERVICE, true),
+  );
+
+  // app.useGlobalInterceptors(new RpcErrorInterceptor());
 
   await app.startAllMicroservices();
 

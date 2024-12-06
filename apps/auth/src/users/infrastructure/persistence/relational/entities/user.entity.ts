@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   Column,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 
 import { RoomEntity } from '@app/common/entities';
@@ -22,6 +23,7 @@ export class UserEntity extends EntityRelationalHelper {
 
   @ApiProperty()
   @ManyToMany(() => RoomEntity, (room) => room.users)
+  @JoinTable()
   rooms: RoomEntity[];
 
   @ApiProperty()

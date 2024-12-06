@@ -1,14 +1,20 @@
 import { Catch, ArgumentsHost, HttpException } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { BaseWsExceptionFilter, WsException } from '@nestjs/websockets';
 
-@Catch(HttpException)
-export class WebSocketExceptionFilter extends BaseWsExceptionFilter {
-  catch(exception: WsException, host: ArgumentsHost) {
-    const client = host.switchToWs().getClient();
+type HttpWsException = WsException & {
+  response: {
+    message: string;
+  };
+};
 
+@Catch()
+export class WebSocketExceptionFilter extends BaseWsExceptionFilter {
+  catch(exception: HttpWsException, host: ArgumentsHost) {
+    const client = host.switchToWs().getClient();
+    console.log('exception', exception);
     client.emit('error', {
-      status: 'error',
-      message: exception?.message || 'An error occurred',
+      message: exception?.response || exception?.message || 'An error occurred',
     });
   }
 }

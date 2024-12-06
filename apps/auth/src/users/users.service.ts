@@ -32,6 +32,10 @@ export class UsersService {
     return this.userRepository.findById(id);
   }
 
+  findUsersByIds(ids: User['id'][]) {
+    return this.userRepository.findByIds(ids);
+  }
+
   findUserByEmail(email: User['email']) {
     return this.userRepository.findByEmail(email);
   }

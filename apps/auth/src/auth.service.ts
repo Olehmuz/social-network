@@ -70,6 +70,7 @@ export class AuthService {
     const tokenPayload = {
       sub: payload.id,
       email: payload.email,
+      userId: payload.id,
     };
 
     const accessPromise = this.jwtService.signAsync(tokenPayload, {

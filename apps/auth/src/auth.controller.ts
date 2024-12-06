@@ -1,4 +1,9 @@
-import { Controller, UseFilters } from '@nestjs/common';
+import {
+  Controller,
+  UseFilters,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   Ctx,
   EventPattern,
@@ -7,10 +12,16 @@ import {
   RmqContext,
 } from '@nestjs/microservices';
 
-import { SignInDto, SignUpDto } from '@app/common';
+import { CurrentUser } from '@app/common/auth';
+
+import { RpcErrorInterceptor } from '@app/utils/interceptors/rpc-error.interceptor';
+
+import { SignInDto, SignUpDto, User } from '@app/common';
 
 import { AuthService } from './auth.service';
+import JwtAuthGuard from './guards/jwt.guard';
 
+@UseInterceptors(RpcErrorInterceptor)
 @Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -25,8 +36,11 @@ export class AuthController {
     return this.authService.signIn(dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @MessagePattern({ cmd: 'user.validate' })
-  validateUser() {}
+  validateUser(@CurrentUser() user: User) {
+    return user;
+  }
 
   @EventPattern('test_ack')
   sayHello(data: any) {

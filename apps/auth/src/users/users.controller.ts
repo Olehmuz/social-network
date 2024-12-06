@@ -7,7 +7,9 @@ import {
   Param,
   Delete,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -21,6 +23,7 @@ import {
   InfinityPaginationResponseDto,
 } from '@app/utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '@app/utils/infinity-pagination';
+import { RpcErrorInterceptor } from '@app/utils/interceptors/rpc-error.interceptor';
 
 import { User } from './domain/user';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -103,5 +106,11 @@ export class UsersController {
   })
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
+  }
+
+  @UseInterceptors(RpcErrorInterceptor)
+  @MessagePattern({ cmd: 'user.find.by.ids' })
+  async findUsersByIds(@Payload() userIds: string[]): Promise<User[]> {
+    return this.usersService.findUsersByIds(userIds);
   }
 }

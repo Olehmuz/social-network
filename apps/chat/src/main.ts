@@ -1,7 +1,13 @@
-import { Logger, NestApplicationOptions } from '@nestjs/common';
+import { Logger, NestApplicationOptions, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { RmqOptions } from '@nestjs/microservices';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+import { CHAT_SERVICE } from '@app/common/constatnts/services.constants';
+import { RmqService } from '@app/common/modules/rmq/rmq.service';
+
+import { RpcExceptionFilter } from '@app/utils/exceptions/rpc-exception.filter';
 
 import { ChatModule } from './chat.module';
 
@@ -19,6 +25,8 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
+  console.log(process.env);
+
   const port = configService.get('APP_PORT');
   const env = process.env.NODE_ENV || 'dev';
 
@@ -34,6 +42,17 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(port || 3000);
+  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(new RpcExceptionFilter());
+
+  const rmqService = app.get<RmqService>(RmqService);
+
+  app.connectMicroservice<RmqOptions>(
+    rmqService.getOptions(CHAT_SERVICE, true),
+  );
+
+  await app.startAllMicroservices();
+
+  await app.listen(port || 3004);
 }
 bootstrap();

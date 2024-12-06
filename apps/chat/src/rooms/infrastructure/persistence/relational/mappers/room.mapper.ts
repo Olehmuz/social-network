@@ -8,7 +8,7 @@ export class RoomMapper {
     const domainEntity = new Room();
     domainEntity.id = raw.id;
     domainEntity.name = raw.name;
-    if (raw.users.length) {
+    if (raw.users?.length) {
       domainEntity.users = raw.users.map((user) => {
         return UserMapper.toDomain(user);
       });

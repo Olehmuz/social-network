@@ -23,4 +23,6 @@ export abstract class RoomRepository {
   ): Promise<Room | null>;
 
   abstract remove(id: Room['id']): Promise<void>;
+
+  abstract findAllByUserId(userId: string): Promise<Room[]>;
 }

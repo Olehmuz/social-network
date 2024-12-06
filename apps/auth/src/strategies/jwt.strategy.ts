@@ -1,5 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { RpcException } from '@nestjs/microservices';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
@@ -18,15 +23,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
           return request?.Authentication;
         },
       ]),
-      secretOrKey: configService.get('JWT_SECRET'),
+      secretOrKey: configService.get('JWT_AT_SECRET'),
     });
   }
 
   async validate({ userId }: TokenPayload) {
     try {
-      return await this.usersService.findOneByUserId(userId);
+      return this.usersService.findOneByUserId(userId);
     } catch (err) {
-      throw new UnauthorizedException();
+      throw new RpcException(new UnauthorizedException());
     }
   }
 }

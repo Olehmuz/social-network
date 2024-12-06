@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { User } from '@app/common/domain';
 import { UserEntity } from '@app/common/entities';
@@ -45,6 +45,16 @@ export class UserRelationalRepository implements UserRepository {
     });
 
     return entity ? UserMapper.toDomain(entity) : null;
+  }
+
+  async findByIds(ids: User['id'][]): Promise<User[]> {
+    console.log(ids);
+    const entities = await this.userRepository.find({
+      where: { id: In(ids) },
+    });
+    console.log(entities);
+
+    return entities.map((entity) => UserMapper.toDomain(entity));
   }
 
   async findByEmail(email: User['email']): Promise<NullableType<User>> {
