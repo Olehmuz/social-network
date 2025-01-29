@@ -30,4 +30,8 @@ export class RoomsService {
   async getRooms(userId: string) {
     return this.roomsRepository.findAllByUserId(userId);
   }
+
+  async findRoomById(roomId: string) {
+    return this.roomsRepository.findById(roomId);
+  }
 }

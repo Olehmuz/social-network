@@ -4,10 +4,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { RmqModule } from '@app/common/modules/rmq/rmq.module';
 
-import { RoomEntity, UserEntity } from '@app/common';
+import { MessageEntity, RoomEntity, UserEntity } from '@app/common';
 
 import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
+import { MessagesModule } from './messages/messages.module';
 import { RoomsModule } from './rooms/rooms.module';
 
 @Module({
@@ -27,12 +28,13 @@ import { RoomsModule } from './rooms/rooms.module';
         username: configService.get('DATABASE_USERNAME'),
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_NAME'),
-        entities: [RoomEntity, UserEntity],
+        entities: [RoomEntity, UserEntity, MessageEntity],
         synchronize: true,
       }),
     }),
     RoomsModule,
     RmqModule,
+    MessagesModule,
   ],
   controllers: [ChatController],
   providers: [ChatService],

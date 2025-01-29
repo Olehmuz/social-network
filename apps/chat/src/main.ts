@@ -25,8 +25,6 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  console.log(process.env);
-
   const port = configService.get('APP_PORT');
   const env = process.env.NODE_ENV || 'dev';
 

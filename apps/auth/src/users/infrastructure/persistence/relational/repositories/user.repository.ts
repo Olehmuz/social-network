@@ -9,7 +9,7 @@ import { NullableType } from '@app/utils/types/nullable.type';
 import { IPaginationOptions } from '@app/utils/types/pagination-options';
 
 import { UserRepository } from '../../user.repository';
-import { UserMapper } from '../mappers/room.mapper';
+import { UserMapper } from '../mappers/user.mapper';
 
 @Injectable()
 export class UserRelationalRepository implements UserRepository {

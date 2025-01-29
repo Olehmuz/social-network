@@ -19,6 +19,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new RpcExceptionFilter());
 
+  app.enableCors();
+
   await app.listen(3001);
 }
 bootstrap();

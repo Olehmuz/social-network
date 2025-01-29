@@ -16,4 +16,4 @@ import { RoomRelationalRepository } from './repositories/room.repository';
   ],
   exports: [RoomRepository],
 })
-export class RelationalUserPersistenceModule {}
+export class RelationalRoomPersistenceModule {}

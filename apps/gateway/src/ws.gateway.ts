@@ -1,6 +1,7 @@
 import { Inject, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -22,6 +23,7 @@ import { WebSocketExceptionFilter } from '@app/utils/ws-exception.filter';
 import { Room } from '@app/common';
 
 import { CreateRoomDto } from './dtos/create-room.dto';
+import { SendMessageDto } from './dtos/send-message.dto';
 import { GatewayService } from './gateway.service';
 
 @UseFilters(new WebSocketExceptionFilter())
@@ -53,7 +55,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('get-rooms')
   async getRooms(socket: Socket) {
     const user = socket.data.user;
-
+    // console.log('GET ROOMS', user);
     const rooms = await firstValueFrom<Room[]>(
       this.chatService.send({ cmd: 'room.get.all' }, { userId: user.id }),
     );
@@ -73,18 +75,43 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
+  @SubscribeMessage('send-message')
+  async sendMessage(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() dto: SendMessageDto,
+  ) {
+    const message = await firstValueFrom<any>(
+      this.chatService.send(
+        { cmd: 'message.send' },
+        { ...dto, senderId: socket.data.user.id },
+      ),
+    );
+
+    this.server.to(dto.roomId).emit('new-message', message);
+  }
+
+  @SubscribeMessage('get-messages')
+  async getMessages(socket: Socket, @MessageBody() roomId: string) {
+    const messages = await firstValueFrom<any[]>(
+      this.chatService.send({ cmd: 'message.get.all' }, { roomId }),
+    );
+
+    return { event: 'get-messages', data: messages };
+  }
+
   async handleDisconnect(socket: Socket) {
     console.log('HANDLE DISCONNECT');
   }
 
   async handleConnection(socket: Socket) {
-    const token = socket.handshake.headers.authorization ?? null;
-
+    const token =
+      (socket.handshake.auth.token || socket.handshake.headers.auth) ?? null;
+    console.log(socket.handshake);
     if (!token) {
       this.handleDisconnect(socket);
       return;
     }
 
-    this.gatewayService.handleConnection(socket, token);
+    await this.gatewayService.handleConnection(socket, token);
   }
 }

@@ -1,7 +1,7 @@
 import { Room } from '@app/common/domain';
 import { RoomEntity } from '@app/common/entities';
 
-import { UserMapper } from '../../../../../../../auth/src/users/infrastructure/persistence/relational/mappers/room.mapper';
+import { UserMapper } from '../../../../../../../auth/src/users/infrastructure/persistence/relational/mappers/user.mapper';
 
 export class RoomMapper {
   static toDomain(raw: RoomEntity): Room {
@@ -13,7 +13,6 @@ export class RoomMapper {
         return UserMapper.toDomain(user);
       });
     }
-    domainEntity.users = raw.users;
     domainEntity.createdAt = raw.createdAt;
     domainEntity.updatedAt = raw.updatedAt;
 
