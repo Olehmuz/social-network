@@ -14,6 +14,7 @@ export class Message {
   @ApiProperty()
   room: Room;
 
+  @ApiProperty()
   sender: User;
 
   @ApiProperty()

@@ -1,5 +1,9 @@
 import { Inject, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import {
+  ClientProxy,
+  EventPattern,
+  MessagePattern,
+} from '@nestjs/microservices';
 import {
   ConnectedSocket,
   MessageBody,
@@ -43,19 +47,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('create-room')
-  async createRoom(@MessageBody() dto: CreateRoomDto): Promise<any> {
-    const room = await firstValueFrom<Room>(
-      this.chatService.send({ cmd: 'room.create' }, dto),
-    );
-
-    this.handleRoomsUpdate(room.users.map((user) => user.id));
-  }
-
   @SubscribeMessage('get-rooms')
   async getRooms(socket: Socket) {
     const user = socket.data.user;
-    // console.log('GET ROOMS', user);
+
     const rooms = await firstValueFrom<Room[]>(
       this.chatService.send({ cmd: 'room.get.all' }, { userId: user.id }),
     );
@@ -63,31 +58,30 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return { event: 'get-rooms', data: rooms };
   }
 
-  async handleRoomsUpdate(userIds: string[]) {
-    userIds.map(async (userId) => {
-      const usersSockets = await this.gatewayService.getUsersSockets([userId]);
-
-      const rooms = await firstValueFrom<Room[]>(
-        this.chatService.send({ cmd: 'room.get.all' }, { userId }),
-      );
-
-      this.server.to(usersSockets).emit('get-rooms', rooms);
-    });
+  // @EventPattern('room.created')
+  // async handleRoomCreated(room: Room) {
+  //   console.log('room.created', room);
+  // this.handleRoomsUpdate(
+  //   room.users.map((user) => user.id),
+  //   room,
+  // );
+  // }
+  @EventPattern('test')
+  async handleRoomCreated(room: Room) {
+    console.log('test', room);
   }
 
-  @SubscribeMessage('send-message')
-  async sendMessage(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() dto: SendMessageDto,
-  ) {
-    const message = await firstValueFrom<any>(
-      this.chatService.send(
-        { cmd: 'message.send' },
-        { ...dto, senderId: socket.data.user.id },
-      ),
-    );
+  @MessagePattern({ cmd: 'room.created' })
+  async handledsa() {
+    console.log('HANDLED');
+  }
 
-    this.server.to(dto.roomId).emit('new-message', message);
+  async handleRoomsUpdate(userIds: string[], room: Room) {
+    userIds.map(async (userId) => {
+      const usersSockets = await this.gatewayService.getUsersSockets([userId]);
+      console.log(usersSockets);
+      this.server.to(usersSockets).emit('room-created', room);
+    });
   }
 
   @SubscribeMessage('get-messages')
@@ -100,13 +94,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleDisconnect(socket: Socket) {
-    console.log('HANDLE DISCONNECT');
+    // console.log('HANDLE DISCONNECT');
   }
 
   async handleConnection(socket: Socket) {
     const token =
       (socket.handshake.auth.token || socket.handshake.headers.auth) ?? null;
-    console.log(socket.handshake);
+    // console.log(socket.handshake);
     if (!token) {
       this.handleDisconnect(socket);
       return;

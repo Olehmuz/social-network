@@ -1,4 +1,3 @@
-import { StrictMode } from 'react'
 import './index.css'
 import './app/App.css'
 import App from './app/App.tsx'
@@ -11,7 +10,6 @@ import SignIn from './pages/auth/sign-in/page.tsx'
 const root = document.getElementById("root");
 
 ReactDOM.createRoot(root!).render(
-  <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path='/login' element={<SignIn />} />
@@ -22,5 +20,4 @@ ReactDOM.createRoot(root!).render(
         </Route>
       </Routes>
     </BrowserRouter>  
-  </StrictMode>
 );

@@ -7,14 +7,17 @@ import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } 
 import { useNavigate, useParams } from "react-router";
 import useAuthStore from "@/shared/store/auth.store";
 import { CreateRoomMultiselect } from "./create-room-multiselect";
-import { useRooms } from "@/shared/hooks/useRooms";
+import useFetch from "@/shared/hooks/useFetch";
+import useSocket from "@/shared/hooks/useSocket";
+import { Room } from "@/entities";
 
 const ChatList = () => {
   const activeRoomId = useParams().chatId;
   const navigate = useNavigate();
   const { logout } = useAuthStore()
-  
-  const { rooms } = useRooms();
+
+  const { data: rooms, loading, setData } = useFetch<Room>('rooms');
+  const { socketListen } = useSocket();
 
   useEffect(() => {
     if(!activeRoomId) {
@@ -24,7 +27,13 @@ const ChatList = () => {
     }
   }, [activeRoomId, rooms]);
 
-  if(!rooms.length) {
+  useEffect(() => {
+    socketListen('room-created', (room: Room) => {
+      setData((prev) => [...prev, room]);
+    });
+  }, []);
+
+  if(!loading && !rooms) {
     return <div>Loading...</div>;
   }
 

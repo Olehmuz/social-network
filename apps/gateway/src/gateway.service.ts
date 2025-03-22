@@ -21,7 +21,7 @@ export class GatewayService {
   }
 
   async handleConnection(socket: Socket, token: string) {
-    console.log('HANDLE CONNECTION');
+    // console.log('HANDLE CONNECTION');
 
     try {
       const user = await firstValueFrom(
@@ -41,7 +41,7 @@ export class GatewayService {
       this.saveUserSocket(user.id, socket.id);
       this.joinUserRooms(socket, user.id);
 
-      console.log('User connected');
+      // console.log('User connected');
     } catch (error) {
       socket.emit('error', error?.response ?? 'Unauthorized');
       socket.disconnect();
@@ -61,8 +61,8 @@ export class GatewayService {
   }
 
   async saveUserSocket(userId: string, socketId: string) {
+    console.log('saveUserSocket', userId, socketId);
     if (!userId || !socketId) return;
-
     await this.cache.set(`user-${userId}`, socketId);
   }
 

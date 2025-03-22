@@ -7,6 +7,7 @@ import { CacheModule } from '@app/common/cache/cache.module';
 import {
   AUTH_SERVICE,
   CHAT_SERVICE,
+  GATEWAY_SERVICE,
 } from '@app/common/constatnts/services.constants';
 import { RmqModule } from '@app/common/modules/rmq/rmq.module';
 
@@ -24,11 +25,15 @@ import { ChatGateway } from './ws.gateway';
         RABBIT_MQ_AUTH_QUEUE: Joi.string().required(),
       }),
     }),
+    RmqModule,
     RmqModule.register({
       name: AUTH_SERVICE,
     }),
     RmqModule.register({
       name: CHAT_SERVICE,
+    }),
+    RmqModule.register({
+      name: GATEWAY_SERVICE,
     }),
     AuthModule,
     CacheModule,

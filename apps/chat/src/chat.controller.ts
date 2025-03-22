@@ -47,6 +47,11 @@ export class ChatController {
     return this.roomsService.getRooms(userId);
   }
 
+  @MessagePattern({ cmd: 'message.get.all.by.room.id' })
+  async getMessageById(@Payload() { roomId }: { roomId: string }) {
+    return this.messagesService.getMessagesByRoomId(roomId);
+  }
+
   @MessagePattern({ cmd: 'message.send' })
   async createMessage(@Payload() data: SendMessageWithSenderDto) {
     console.log('SEND MESSAGE', data);

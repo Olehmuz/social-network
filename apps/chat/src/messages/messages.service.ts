@@ -17,22 +17,16 @@ export class MessagesService {
     @Inject(AUTH_SERVICE) private authClient: ClientProxy,
   ) {}
 
-  // async createMessage(name: string, userIds: string[]) {
-  //   const users = await firstValueFrom(
-  //     this.authClient.send<User[]>({ cmd: 'user.find.by.ids' }, userIds),
-  //   );
-
-  //   if (!users || users.length !== userIds.length) {
-  //     throw new RpcException(new BadRequestException('Some users not found'));
-  //   }
-
-  //   return this.messageRepository.create({ name, users });
-  // }
-
   async sendMessageToRoom(roomId: string, senderId: string, message: string) {
     const room = await this.roomsService.findRoomById(roomId);
 
     const sender = room.users.find((u) => u.id === senderId);
+
+    if (!sender) {
+      throw new RpcException(
+        new BadRequestException('Sender not found in room'),
+      );
+    }
 
     const users = room.users;
 
@@ -43,6 +37,16 @@ export class MessagesService {
       undeliveredUsers: users,
       unreadUsers: users.filter((u) => u.id !== senderId),
     });
+  }
+
+  async getMessagesByRoomId(roomId: string) {
+    const room = await this.roomsService.findRoomById(roomId);
+
+    if (!room) {
+      throw new RpcException(new BadRequestException('Room not found'));
+    }
+
+    return this.messageRepository.findByRoomId(roomId);
   }
 
   async getMessages(userId: string) {

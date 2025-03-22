@@ -17,6 +17,8 @@ export abstract class MessageRepository {
 
   abstract findById(id: Message['id']): Promise<NullableType<Message>>;
 
+  abstract findByRoomId(roomId: Message['room']['id']): Promise<Message[]>;
+
   abstract update(
     id: Message['id'],
     payload: DeepPartial<Message>,

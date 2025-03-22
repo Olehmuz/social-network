@@ -21,7 +21,7 @@ export class MessageRelationalRepository implements MessageRepository {
   async create(data: Message): Promise<Message> {
     const persistenceModel = MessageMapper.toPersistence(data);
 
-    console.log(persistenceModel);
+    console.log('persistenceModel', persistenceModel);
 
     const newEntity = await this.messagesRepository.save(
       this.messagesRepository.create(persistenceModel),
@@ -29,6 +29,18 @@ export class MessageRelationalRepository implements MessageRepository {
 
     console.log(newEntity);
     return MessageMapper.toDomain(newEntity);
+  }
+
+  async findByRoomId(roomId: string): Promise<Message[]> {
+    const entities = await this.messagesRepository.find({
+      where: { room: { id: roomId } },
+      // relations: ['rooms'],
+      relations: ['sender'],
+    });
+
+    console.log('entities', entities);
+
+    return entities;
   }
 
   async findAllWithPagination({

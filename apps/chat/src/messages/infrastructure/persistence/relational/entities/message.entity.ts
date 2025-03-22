@@ -9,6 +9,7 @@ import {
   ManyToOne,
   OneToOne,
   JoinTable,
+  JoinColumn,
 } from 'typeorm';
 
 import { RoomEntity, UserEntity } from '@app/common/entities';
@@ -24,19 +25,12 @@ export class MessageEntity extends EntityRelationalHelper {
   id: string;
 
   @ApiProperty()
+  @Column()
   message: string;
 
   @ApiProperty()
   @ManyToOne(() => RoomEntity, (room) => room.id)
   room: RoomEntity;
-
-  // @ApiProperty({ default: [] })
-  // @ManyToOne(() => UserEntity, (user) => user.id)
-  // undeliveredUsers: UserEntity[];
-
-  // @ApiProperty({ default: [] })
-  // @ManyToOne(() => UserEntity, (user) => user.id)
-  // unreadUsers: UserEntity[];
 
   @ManyToMany(() => UserEntity, (user) => user.id)
   @JoinTable() // Необхідно для ManyToMany зв'язків
@@ -47,7 +41,8 @@ export class MessageEntity extends EntityRelationalHelper {
   unreadUsers: UserEntity[];
 
   @ApiProperty()
-  @OneToOne(() => UserEntity, (user) => user.id)
+  @ManyToOne(() => UserEntity)
+  @JoinColumn()
   sender: UserEntity;
 
   @ApiProperty()
