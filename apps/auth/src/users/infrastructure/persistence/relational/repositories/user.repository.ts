@@ -26,6 +26,11 @@ export class UserRelationalRepository implements UserRepository {
     return UserMapper.toDomain(newEntity);
   }
 
+  async findAll(): Promise<User[]> {
+    const entities = await this.userRepository.find();
+    return entities.map((entity) => UserMapper.toDomain(entity));
+  }
+
   async findAllWithPagination({
     paginationOptions,
   }: {

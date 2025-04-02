@@ -81,20 +81,50 @@ export class GatewayController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/rooms/:roomId')
+  async getRoom(@CurrentUser() user: User, @Param('roomId') roomId: string) {
+    const room = await firstValueFrom<Room>(
+      this.chatService.send({ cmd: 'room.get.by.id' }, { roomId }),
+    );
+
+    return room;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/room')
+  async createRoom(
+    @Body() dto: CreateRoomDto,
+    @CurrentUser() user: User,
+  ): Promise<Room> {
+    console.log('dto', { ...dto, ownerId: user.id });
+
+    const room = await firstValueFrom<Room>(
+      this.chatService.send(
+        { cmd: 'room.create' },
+        { ...dto, ownerId: user.id },
+      ),
+    );
+
+    this.handleRoomsUpdate(
+      room.users.map((user) => user.id),
+      room,
+    );
+
+    return room;
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('/rooms/:roomId/messages')
   async sendMessage(
     @CurrentUser() user: User,
     @Body() dto: SendMessageDto,
     @Param('roomId') roomId: string,
   ) {
-    const message = await firstValueFrom<any>(
-      this.chatService.send(
-        { cmd: 'message.send' },
-        { message: dto.message, senderId: user.id, roomId },
-      ),
-    );
-
-    return message;
+    this.chatService.emit('message.send', {
+      message: dto.message,
+      senderId: user.id,
+      roomId,
+    });
   }
 
   @UseGuards(JwtAuthGuard)
@@ -110,6 +140,15 @@ export class GatewayController {
     return messages;
   }
 
+  @Get('/users')
+  async getUsers() {
+    const users = await firstValueFrom<User[]>(
+      this.authClient.send({ cmd: 'user.get.all' }, {}),
+    );
+
+    return users;
+  }
+
   @Get('/test')
   async test() {
     await this.cacheService.set('test', 'test123');
@@ -122,27 +161,19 @@ export class GatewayController {
     return this.cacheService.get('test');
   }
 
-  @Post('/room')
-  async createRoom(@MessageBody() dto: CreateRoomDto): Promise<Room> {
-    const room = await firstValueFrom<Room>(
-      this.chatService.send({ cmd: 'room.create' }, dto),
-    );
-
-    this.handleRoomsUpdate(
-      room.users.map((user) => user.id),
-      room,
-    );
-
-    return room;
-  }
-
   async handleRoomsUpdate(userIds: string[], room: Room) {
     console.log('HANDLE ROOMS UPDATE', userIds);
     userIds.map(async (userId) => {
       const usersSockets = await this.gatewayService.getUsersSockets([userId]);
-      console.log('USERS SOCKETS', usersSockets);
 
       this.gateway.server.to(usersSockets).emit('room-created', room);
     });
+  }
+
+  @EventPattern('message.publish')
+  async handleRoomsMessageUpdate(data: { roomId: string; message: string }) {
+    this.gateway.server
+      .to(`room-${data.roomId}`)
+      .emit('message-retrieved', data.message);
   }
 }

@@ -113,4 +113,10 @@ export class UsersController {
   async findUsersByIds(@Payload() userIds: string[]): Promise<User[]> {
     return this.usersService.findUsersByIds(userIds);
   }
+
+  @UseInterceptors(RpcErrorInterceptor)
+  @MessagePattern({ cmd: 'user.get.all' })
+  async getUsers(): Promise<User[]> {
+    return this.usersService.findAll();
+  }
 }

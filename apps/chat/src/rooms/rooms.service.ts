@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { AUTH_SERVICE } from '@app/common/constatnts/services.constants';
 
-import { User } from '@app/common';
+import { RoomType, User } from '@app/common';
 
 import { RoomRepository } from './infrastructure/persistence/room.repository';
 
@@ -15,7 +15,12 @@ export class RoomsService {
     @Inject(AUTH_SERVICE) private authClient: ClientProxy,
   ) {}
 
-  async createRoom(name: string, userIds: string[]) {
+  async createRoom(
+    name: string,
+    userIds: string[],
+    type: RoomType,
+    ownerId: string,
+  ) {
     const users = await firstValueFrom(
       this.authClient.send<User[]>({ cmd: 'user.find.by.ids' }, userIds),
     );
@@ -24,7 +29,12 @@ export class RoomsService {
       throw new RpcException(new BadRequestException('Some users not found'));
     }
 
-    return this.roomsRepository.create({ name, users });
+    return this.roomsRepository.create({
+      name,
+      users,
+      type,
+      owner: users.find((user) => user.id === ownerId),
+    });
   }
 
   async getRooms(userId: string) {

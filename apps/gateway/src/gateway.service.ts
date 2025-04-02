@@ -61,7 +61,6 @@ export class GatewayService {
   }
 
   async saveUserSocket(userId: string, socketId: string) {
-    console.log('saveUserSocket', userId, socketId);
     if (!userId || !socketId) return;
     await this.cache.set(`user-${userId}`, socketId);
   }

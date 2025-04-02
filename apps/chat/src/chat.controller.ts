@@ -5,13 +5,12 @@ import {
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 
 import { RpcErrorInterceptor } from '@app/utils/interceptors/rpc-error.interceptor';
 
 import {
-  CreateRoomDto,
-  SendMessageDto,
+  CreateRoomDtoWithOwnerId,
   SendMessageWithSenderDto,
 } from '@app/common';
 
@@ -28,18 +27,14 @@ export class ChatController {
     private readonly messagesService: MessagesService,
   ) {}
 
-  @Get()
-  getHello() {
-    return this.messagesService.sendMessageToRoom(
-      '91203c4f-81b7-4227-9c5d-c11dd24b2767',
-      'b6891d6c-1691-4ef7-94ae-3bde2d279cec',
-      'Hello, world!',
-    );
-  }
-
   @MessagePattern({ cmd: 'room.create' })
-  async createRoom(@Payload() data: CreateRoomDto) {
-    return this.roomsService.createRoom(data.name, data.userIds);
+  async createRoom(@Payload() data: CreateRoomDtoWithOwnerId) {
+    return this.roomsService.createRoom(
+      data.name,
+      data.userIds,
+      data.type,
+      data.ownerId,
+    );
   }
 
   @MessagePattern({ cmd: 'room.get.all' })
@@ -47,14 +42,18 @@ export class ChatController {
     return this.roomsService.getRooms(userId);
   }
 
+  @MessagePattern({ cmd: 'room.get.by.id' })
+  async getRoomById(@Payload() { roomId }: { roomId: string }) {
+    return this.roomsService.findRoomById(roomId);
+  }
+
   @MessagePattern({ cmd: 'message.get.all.by.room.id' })
   async getMessageById(@Payload() { roomId }: { roomId: string }) {
     return this.messagesService.getMessagesByRoomId(roomId);
   }
 
-  @MessagePattern({ cmd: 'message.send' })
-  async createMessage(@Payload() data: SendMessageWithSenderDto) {
-    console.log('SEND MESSAGE', data);
+  @EventPattern('message.send')
+  async createMessage(data: SendMessageWithSenderDto) {
     return this.messagesService.sendMessageToRoom(
       data.roomId,
       data.senderId,

@@ -1,7 +1,7 @@
 yarn install
 docker compose -up d
-nest start auth
-nest start chat
-nest start gateway
+yarn start:dev auth
+yarn start:dev chat
+yarn start:dev gateway
 cd apps/client
 yarn dev

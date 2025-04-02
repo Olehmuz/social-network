@@ -1,35 +1,36 @@
 import Multiselect from "multiselect-react-dropdown";
-import { useState } from "react";
+import { useMemo } from "react";
 
-const users = [
-  { name: "Олександр", id: 1 },
-  { name: "Марія", id: 2 },
-  { name: "Іван", id: 3 },
-  { name: "Олена", id: 4 },
-];
-
-const CreateRoomMultiselect = () => {
-  const [selectedUsers, setSelectedUsers] = useState([]);
+const CreateRoomMultiselect = ({ users, selectedUsers, onSelectionChange }: { users: any[], selectedUsers: any[], onSelectionChange: (selectedUsers: any[]) => void }) => {
 
   const onSelect = (selectedList: any) => {
-    setSelectedUsers(selectedList);
+    onSelectionChange(selectedList);
   };
 
   const onRemove = (selectedList: any) => {
-    setSelectedUsers(selectedList);
+    onSelectionChange(selectedList);
   };
 
+  const usersOptions = useMemo(() => users.map((user) => ({
+    name: user.nickname,
+    id: user.id,
+  })), [users]);
+
   return (
-    <div className="grid gap-4 py-4">
-      <Multiselect
-        options={users}
-        selectedValues={selectedUsers}
-        onSelect={onSelect}
-        onRemove={onRemove}
-        displayValue="name"
-        placeholder="Select users"
-        showCheckbox
-      />
+    <div className="grid py-2">
+      {users.length > 0 ? (
+        <Multiselect
+          options={usersOptions}
+          selectedValues={selectedUsers}
+          onSelect={onSelect}
+          onRemove={onRemove}
+          displayValue="name"
+          placeholder="Select users"
+          showCheckbox
+        />
+      ) : (
+        <p>No users available to select.</p>
+      )}
     </div>
   )
 

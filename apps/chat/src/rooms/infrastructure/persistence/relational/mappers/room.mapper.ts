@@ -13,6 +13,8 @@ export class RoomMapper {
         return UserMapper.toDomain(user);
       });
     }
+    domainEntity.owner = UserMapper.toDomain(raw.owner);
+    domainEntity.type = raw.type;
     domainEntity.createdAt = raw.createdAt;
     domainEntity.updatedAt = raw.updatedAt;
 
@@ -28,6 +30,8 @@ export class RoomMapper {
         return UserMapper.toPersistence(user);
       });
     }
+    persistenceEntity.owner = UserMapper.toPersistence(domainEntity.owner);
+    persistenceEntity.type = domainEntity.type;
     persistenceEntity.createdAt = domainEntity.createdAt;
     persistenceEntity.updatedAt = domainEntity.updatedAt;
 

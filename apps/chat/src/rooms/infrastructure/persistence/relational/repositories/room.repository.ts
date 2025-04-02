@@ -43,7 +43,12 @@ export class RoomRelationalRepository implements RoomRepository {
   async findById(id: Room['id']): Promise<NullableType<Room>> {
     const entity = await this.roomsRepository.findOne({
       where: { id },
-      relations: ['users'],
+      relations: ['users', 'owner'],
+      select: {
+        owner: {
+          id: true,
+        },
+      },
     });
 
     return entity ? RoomMapper.toDomain(entity) : null;
@@ -77,7 +82,12 @@ export class RoomRelationalRepository implements RoomRepository {
   async findAllByUserId(userId: string): Promise<Room[]> {
     const entities = await this.roomsRepository.find({
       where: { users: { id: userId } },
-      relations: ['users'],
+      relations: ['users', 'owner'],
+      select: {
+        owner: {
+          id: true,
+        },
+      },
     });
 
     return entities.map((entity) => RoomMapper.toDomain(entity));

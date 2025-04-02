@@ -9,6 +9,8 @@ export abstract class UserRepository {
     data: Omit<User, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<User>;
 
+  abstract findAll(): Promise<User[]>;
+
   abstract findAllWithPagination({
     paginationOptions,
   }: {

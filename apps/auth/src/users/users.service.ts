@@ -15,6 +15,10 @@ export class UsersService {
     return this.userRepository.create(createUserDto);
   }
 
+  findAll() {
+    return this.userRepository.findAll();
+  }
+
   findAllWithPagination({
     paginationOptions,
   }: {

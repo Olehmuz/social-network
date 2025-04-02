@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 
-import { AUTH_SERVICE } from '@app/common/constatnts/services.constants';
+import {
+  AUTH_SERVICE,
+  GATEWAY_SERVICE,
+} from '@app/common/constatnts/services.constants';
 import { RmqModule } from '@app/common/modules/rmq/rmq.module';
 
 import { MessagesService } from './messages.service';
@@ -13,6 +16,9 @@ import { RelationalMessagePersistenceModule } from './infrastructure/persistence
     RoomsModule,
     RmqModule.register({
       name: AUTH_SERVICE,
+    }),
+    RmqModule.register({
+      name: GATEWAY_SERVICE,
     }),
   ],
   providers: [MessagesService],

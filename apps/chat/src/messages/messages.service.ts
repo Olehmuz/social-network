@@ -1,10 +1,10 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
 
-import { AUTH_SERVICE } from '@app/common/constatnts/services.constants';
-
-import { User } from '@app/common';
+import {
+  AUTH_SERVICE,
+  GATEWAY_SERVICE,
+} from '@app/common/constatnts/services.constants';
 
 import { RoomsService } from '../rooms/rooms.service';
 import { MessageRepository } from './infrastructure/persistence/message.repository';
@@ -15,6 +15,7 @@ export class MessagesService {
     private readonly messageRepository: MessageRepository,
     private readonly roomsService: RoomsService,
     @Inject(AUTH_SERVICE) private authClient: ClientProxy,
+    @Inject(GATEWAY_SERVICE) private gatewayClient: ClientProxy,
   ) {}
 
   async sendMessageToRoom(roomId: string, senderId: string, message: string) {
@@ -30,12 +31,17 @@ export class MessagesService {
 
     const users = room.users;
 
-    return this.messageRepository.create({
+    const createdMessage = await this.messageRepository.create({
       message,
       sender,
       room,
       undeliveredUsers: users,
       unreadUsers: users.filter((u) => u.id !== senderId),
+    });
+
+    this.gatewayClient.emit('message.publish', {
+      message: createdMessage,
+      roomId,
     });
   }
 

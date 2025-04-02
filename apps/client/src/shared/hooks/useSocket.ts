@@ -9,14 +9,12 @@ import useAuthStore from '../store/auth.store';
       token,
     },
     reconnection: true,
-    reconnectionDelay: 1000,
+    reconnectionDelay: 10000,
     reconnectionAttempts: 3,
-    retries: 3
+    // retries: 3
   });
 
 const useSocket = () => {
-  
-  
   const socketEmit = (action: any, payload: any, fn: any) => {
     socket.emit(action, payload, fn);
   };
@@ -24,14 +22,6 @@ const useSocket = () => {
   const socketListen = (action: any, fn: any) => {
     socket.on(action, fn);
   };
-
-  // useAuthStore.subscribe((state) => {
-  //   console.log('Token updated', state.token);
-  //   const newToken = state.token;
-  //   socket.auth = { token: newToken };
-  //   socket.disconnect();
-  //   socket.connect();
-  // });
 
   return { socketEmit, socketListen, userId, socket };
 };
