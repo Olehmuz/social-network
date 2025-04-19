@@ -31,11 +31,31 @@ const ChatList = () => {
 
   useEffect(() => {
     socketListen('room-created', (room: Room) => {
-      if(rooms?.find((r) => r.id === room.id)) {
-        return;
-      }
+      console.log('room-created', room);
+      setData((prev) => {
+        if (!prev) return [room];
+        
+        const existingRoomIndex = prev.findIndex((r) => r.id === room.id);
+        if (existingRoomIndex !== -1) {
+          const updatedRooms = [...prev];
+          updatedRooms[existingRoomIndex] = room;
+          return updatedRooms;
+        }
+        
+        // Add new room
+        return [...prev, room];
+      });
+    });
+  }, []);
 
-      setData((prev) => [...prev ?? [], room]);
+  useEffect(() => {
+    socketListen('room-deleted', (room: Room) => {
+      console.log('room-deleted', room);
+      // console.log('rooms', rooms);
+      setData((prev) => {
+        console.log('dasd', prev?.filter((r) => r.id !== room.id) ?? []);
+        return prev?.filter((r) => r.id !== room.id) ?? [];
+      });
     });
   }, []);
 

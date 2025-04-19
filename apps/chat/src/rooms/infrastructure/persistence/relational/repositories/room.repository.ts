@@ -57,6 +57,7 @@ export class RoomRelationalRepository implements RoomRepository {
   async update(id: Room['id'], payload: Partial<Room>): Promise<Room> {
     const entity = await this.roomsRepository.findOne({
       where: { id },
+      relations: ['users', 'owner'],
     });
 
     if (!entity) {

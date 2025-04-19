@@ -1,8 +1,16 @@
 import ky from '../lib/ky';
 
+export enum RequestMethod {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  PATCH = 'PATCH',
+  DELETE = 'DELETE',
+}
+
 export async function requestAPI<T>(
   url: string,
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' = 'GET',
+  method: RequestMethod,
   body?: unknown
 ): Promise<T> {
   try {

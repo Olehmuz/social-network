@@ -11,10 +11,10 @@ import { Edit } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import { Room } from "@/entities";
-import { requestAPI } from "@/shared/lib/requestAPI";
+import { requestAPI, RequestMethod } from "@/shared/lib/requestAPI";
 
 const createRoom = (roomName: string, users: User[], roomType: RoomType) => {
-  return requestAPI<Room>('room', 'POST', {
+  return requestAPI<Room>('room', RequestMethod.POST, {
     name: roomName,
     userIds: users.map((user) => user.id),
     type: roomType,

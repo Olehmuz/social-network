@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -10,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy, EventPattern } from '@nestjs/microservices';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { MessageBody, WebSocketServer } from '@nestjs/websockets';
+import { WebSocketServer } from '@nestjs/websockets';
 import { firstValueFrom } from 'rxjs';
 import { Server } from 'socket.io';
 
@@ -34,9 +35,9 @@ import {
   User,
 } from '@app/common';
 
+import { AddRoomUserDto } from './dtos/add-room-user.dto';
 import { GatewayService } from './gateway.service';
 import { ChatGateway } from './ws.gateway';
-
 @ApiBearerAuth()
 @UseInterceptors(RpcErrorInterceptor)
 @Controller()
@@ -105,7 +106,7 @@ export class GatewayController {
       ),
     );
 
-    this.handleRoomsUpdate(
+    this.handleRoomsCreate(
       room.users.map((user) => user.id),
       room,
     );
@@ -140,6 +141,69 @@ export class GatewayController {
     return messages;
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('/rooms/:roomId/users')
+  async addUsersToRoom(
+    @CurrentUser() user: User,
+    @Param('roomId') roomId: string,
+    @Body() dto: AddRoomUserDto,
+  ) {
+    const addedUsers = await firstValueFrom<User[]>(
+      this.chatService.send(
+        { cmd: 'room.add.users' },
+        { roomId, userIds: dto.userIds },
+      ),
+    );
+
+    const room = await firstValueFrom<Room>(
+      this.chatService.send({ cmd: 'room.get.by.id' }, { roomId }),
+    );
+    console.log('room', addedUsers);
+    this.handleRoomsCreate(
+      addedUsers.map((user) => user.id),
+      room,
+    );
+
+    this.handleRoomsUpdate(
+      room.users.map((user) => user.id),
+      room,
+    );
+
+    return addedUsers;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('/rooms/:roomId')
+  async deleteRoom(@CurrentUser() user: User, @Param('roomId') roomId: string) {
+    const room = await firstValueFrom<Room>(
+      this.chatService.send({ cmd: 'room.delete' }, { roomId }),
+    );
+
+    console.log('room', room);
+
+    this.handleRoomLeave(
+      room.users.map((user) => user.id),
+      room,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/rooms/:roomId/leave')
+  async leaveRoom(@CurrentUser() user: User, @Param('roomId') roomId: string) {
+    const room = await firstValueFrom<Room>(
+      this.chatService.send(
+        { cmd: 'room.remove.users' },
+        { roomId, userIds: [user.id] },
+      ),
+    );
+
+    this.handleRoomLeave([user.id], room);
+    this.handleRoomsUpdate(
+      room.users.map((user) => user.id),
+      room,
+    );
+  }
+
   @Get('/users')
   async getUsers() {
     const users = await firstValueFrom<User[]>(
@@ -161,12 +225,25 @@ export class GatewayController {
     return this.cacheService.get('test');
   }
 
-  async handleRoomsUpdate(userIds: string[], room: Room) {
-    console.log('HANDLE ROOMS UPDATE', userIds);
+  async handleRoomsCreate(userIds: string[], room: Room) {
     userIds.map(async (userId) => {
       const usersSockets = await this.gatewayService.getUsersSockets([userId]);
 
       this.gateway.server.to(usersSockets).emit('room-created', room);
+    });
+  }
+
+  async handleRoomsUpdate(userIds: string[], room: Room) {
+    userIds.map(async (userId) => {
+      const usersSockets = await this.gatewayService.getUsersSockets([userId]);
+      this.gateway.server.to(usersSockets).emit('room-updated', room);
+    });
+  }
+
+  async handleRoomLeave(userIds: string[], room: Room) {
+    userIds.map(async (userId) => {
+      const usersSockets = await this.gatewayService.getUsersSockets([userId]);
+      this.gateway.server.to(usersSockets).emit('room-deleted', room);
     });
   }
 

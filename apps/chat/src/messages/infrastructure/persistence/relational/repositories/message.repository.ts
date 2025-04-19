@@ -21,13 +21,10 @@ export class MessageRelationalRepository implements MessageRepository {
   async create(data: Message): Promise<Message> {
     const persistenceModel = MessageMapper.toPersistence(data);
 
-    console.log('persistenceModel', persistenceModel);
-
     const newEntity = await this.messagesRepository.save(
       this.messagesRepository.create(persistenceModel),
     );
 
-    console.log(newEntity);
     return MessageMapper.toDomain(newEntity);
   }
 
@@ -37,8 +34,6 @@ export class MessageRelationalRepository implements MessageRepository {
       // relations: ['rooms'],
       relations: ['sender'],
     });
-
-    console.log('entities', entities);
 
     return entities;
   }

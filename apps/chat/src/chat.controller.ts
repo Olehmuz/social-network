@@ -47,6 +47,25 @@ export class ChatController {
     return this.roomsService.findRoomById(roomId);
   }
 
+  @MessagePattern({ cmd: 'room.add.users' })
+  async addUsersToRoom(
+    @Payload() { roomId, userIds }: { roomId: string; userIds: string[] },
+  ) {
+    return this.roomsService.addUsersToRoom(roomId, userIds);
+  }
+
+  @MessagePattern({ cmd: 'room.remove.users' })
+  async removeUsersFromRoom(
+    @Payload() { roomId, userIds }: { roomId: string; userIds: string[] },
+  ) {
+    return this.roomsService.removeUsersFromRoom(roomId, userIds);
+  }
+
+  @MessagePattern({ cmd: 'room.delete' })
+  async deleteRoom(@Payload() { roomId }: { roomId: string }) {
+    return this.roomsService.deleteRoom(roomId);
+  }
+
   @MessagePattern({ cmd: 'message.get.all.by.room.id' })
   async getMessageById(@Payload() { roomId }: { roomId: string }) {
     return this.messagesService.getMessagesByRoomId(roomId);

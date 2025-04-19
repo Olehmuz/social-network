@@ -32,7 +32,7 @@ export class RoomEntity extends EntityRelationalHelper {
   name?: string;
 
   @ApiProperty()
-  @ManyToMany(() => UserEntity, (user) => user.rooms)
+  @ManyToMany(() => UserEntity, (user) => user.rooms, { onDelete: 'CASCADE' })
   users: UserEntity[];
 
   @ApiProperty()

@@ -16,6 +16,8 @@ const CreateRoomMultiselect = ({ users, selectedUsers, onSelectionChange }: { us
     id: user.id,
   })), [users]);
 
+  console.log('usersOptions', usersOptions);
+
   return (
     <div className="grid py-2">
       {users.length > 0 ? (

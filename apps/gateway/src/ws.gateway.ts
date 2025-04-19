@@ -35,14 +35,6 @@ export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
-  async handleRoomsUpdate(userIds: string[], room: Room) {
-    userIds.map(async (userId) => {
-      const usersSockets = await this.gatewayService.getUsersSockets([userId]);
-      console.log(usersSockets);
-      this.server.to(usersSockets).emit('room-created', room);
-    });
-  }
-
   @SubscribeMessage('join-room')
   handleJoinRoom(socket: Socket, payload: { roomId: string }) {
     socket.join(`room-${payload.roomId}`);

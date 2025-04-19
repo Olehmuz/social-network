@@ -9,11 +9,11 @@ import useFetch from '@/shared/hooks/useFetch';
 import useSocket from '@/shared/hooks/useSocket';
 import { useParams, Link } from 'react-router';
 import { useGetCurrentUserId } from '@/shared/hooks/useGetCurrentUserId';
-import { requestAPI } from '@/shared/lib/requestAPI';
+import { requestAPI, RequestMethod } from '@/shared/lib/requestAPI';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar';
 
 const sendMessage = (activeRoomId: string, message: string) => {
-  return requestAPI<MessageEntity>(`rooms/${activeRoomId}/messages`, 'POST', {
+  return requestAPI<MessageEntity>(`rooms/${activeRoomId}/messages`, RequestMethod.POST, {
     message,
   });
 };
@@ -34,11 +34,9 @@ const ChatArea = () => {
     loading,
   } = useFetch<MessageEntity[]>(`rooms/${activeRoomId}/messages`);
 
-  const { data: room, loading: roomLoading } = useFetch<Room>(
+  const { data: room, loading: roomLoading, setData: setRoom } = useFetch<Room>(
     `rooms/${activeRoomId}`,
   );
-
-  console.log(room);
 
   useEffect(() => {
     socket.emit('join-room', { roomId: activeRoomId });
@@ -63,6 +61,15 @@ const ChatArea = () => {
         }
         return [...prev, message];
       });
+    });
+  }, []);
+
+
+  useEffect(() => {
+    socketListen('room-updated', (room: Room) => {
+      if(activeRoomId === room.id) {
+        setRoom(room);
+      }
     });
   }, []);
 
