@@ -29,7 +29,7 @@ resource "aws_security_group" "postgres_sg" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = var.allowed_cidr_blocks
+    cidr_blocks = ["0.0.0.0/0"]
   }
   
   egress {
@@ -54,18 +54,29 @@ resource "aws_db_subnet_group" "postgres_subnet_group" {
   }
 }
 
+resource "aws_db_parameter_group" "pg_no_ssl" {
+  name        = "postgres16-no-ssl"
+  family      = "postgres16"
+  description = "Disable force SSL for dev"
+
+  parameter {
+    name  = "rds.force_ssl"
+    value = "0"
+  }
+}
+
 # RDS PostgreSQL Instance
 resource "aws_db_instance" "postgres" {
   identifier           = "postgres-instance"
   allocated_storage    = 20
   storage_type         = "gp2"
   engine               = "postgres"
-  engine_version       = "14.7"
+  engine_version       = "16.6"
   instance_class       = "db.t3.micro"
   db_name              = var.db_name
   username             = var.db_username
   password             = var.db_password
-  parameter_group_name = "default.postgres14"
+  parameter_group_name = aws_db_parameter_group.pg_no_ssl.name
   publicly_accessible  = true
   skip_final_snapshot  = true
   db_subnet_group_name = aws_db_subnet_group.postgres_subnet_group.name

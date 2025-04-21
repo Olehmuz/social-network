@@ -29,7 +29,7 @@ export class MessageEntity extends EntityRelationalHelper {
   message: string;
 
   @ApiProperty()
-  @ManyToOne(() => RoomEntity, (room) => room.id)
+  @ManyToOne(() => RoomEntity, (room) => room.id, { onDelete: 'CASCADE' })
   room: RoomEntity;
 
   @ManyToMany(() => UserEntity, (user) => user.id)

@@ -9,6 +9,7 @@ interface AuthState {
   setAuth: (token: string) => void;
   isAuthenticated: () => boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (nickname: string, email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -32,6 +33,22 @@ const useAuthStore = create<AuthState>()(
               password,
             },
           })
+          .json<{ access_token: string }>();
+
+        const { userId } = decodeJWT(access_token) as { userId: string };
+
+        set({ token: access_token, userId });
+      },
+      
+      register: async (nickname: string, email: string, password: string) => {
+        const { access_token } = await ky
+        .post('http://localhost:3001/signUp', {
+          json: {
+            nickname,
+            email,
+            password,
+          },
+        })
           .json<{ access_token: string }>();
 
         const { userId } = decodeJWT(access_token) as { userId: string };
