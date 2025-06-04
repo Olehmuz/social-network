@@ -41,16 +41,4 @@ export class AuthController {
   validateUser(@CurrentUser() user: User) {
     return user;
   }
-
-  @EventPattern('test_ack')
-  sayHello(data: any) {
-    console.log('hello');
-    return 'hello';
-  }
-
-  @MessagePattern({ cmd: 'test_ack' })
-  getHello(@Payload() data: any, @Ctx() context: RmqContext) {
-    console.log('hello');
-    return 'hello';
-  }
 }

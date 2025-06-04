@@ -33,11 +33,11 @@ export class MessageEntity extends EntityRelationalHelper {
   room: RoomEntity;
 
   @ManyToMany(() => UserEntity, (user) => user.id)
-  @JoinTable() // Необхідно для ManyToMany зв'язків
+  @JoinTable()
   undeliveredUsers: UserEntity[];
 
   @ManyToMany(() => UserEntity, (user) => user.id)
-  @JoinTable() // Необхідно для ManyToMany зв'язків
+  @JoinTable()
   unreadUsers: UserEntity[];
 
   @ApiProperty()

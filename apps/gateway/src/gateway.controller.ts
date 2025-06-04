@@ -158,7 +158,7 @@ export class GatewayController {
     const room = await firstValueFrom<Room>(
       this.chatService.send({ cmd: 'room.get.by.id' }, { roomId }),
     );
-    console.log('room', addedUsers);
+
     this.handleRoomsCreate(
       addedUsers.map((user) => user.id),
       room,
@@ -211,18 +211,6 @@ export class GatewayController {
     );
 
     return users;
-  }
-
-  @Get('/test')
-  async test() {
-    await this.cacheService.set('test', 'test123');
-    return 'test';
-  }
-
-  @Get('/test-get')
-  async testGet() {
-    this.gatewayClient.emit('test', 'test');
-    return this.cacheService.get('test');
   }
 
   async handleRoomsCreate(userIds: string[], room: Room) {
